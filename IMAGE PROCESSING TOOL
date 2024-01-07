@@ -1,0 +1,125 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+void displayImage(cv::Mat& image) {
+    cv::namedWindow("Image", cv::WINDOW_NORMAL);
+    cv::imshow("Image", image);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+void applyGrayScale(cv::Mat& image) {
+    cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+    displayImage(image);
+}
+
+void applyBlur(cv::Mat& image) {
+    cv::GaussianBlur(image, image, cv::Size(5, 5), 3, 3);
+    displayImage(image);
+}
+
+void applySharpen(cv::Mat& image) {
+    cv::Mat kernel = (cv::Mat_<float>(3, 3) <<
+        -1, -1, -1,
+        -1, 9, -1,
+        -1, -1, -1);
+    cv::filter2D(image, image, image.depth(), kernel);
+    displayImage(image);
+}
+
+void adjustBrightnessContrast(cv::Mat& image, double alpha, int beta) {
+    image.convertTo(image, -1, alpha, beta);
+    displayImage(image);
+}
+
+void cropImage(cv::Mat& image, int x, int y, int width, int height) {
+    cv::Rect roi(x, y, width, height);
+    image = image(roi);
+    displayImage(image);
+}
+
+void resizeImage(cv::Mat& image, int newWidth, int newHeight) {
+    cv::resize(image, image, cv::Size(newWidth, newHeight));
+    displayImage(image);
+}
+
+int main() {
+    std::string imagePath;
+    cv::Mat image;
+
+    std::cout << "Enter the path to the image: ";
+    std::cin >> imagePath;
+
+    image = cv::imread(imagePath);
+    if (image.empty()) {
+        std::cerr << "Error: Unable to load image!" << std::endl;
+        return -1;
+    }
+
+    int choice;
+    do {
+        std::cout << "\nChoose an operation:" << std::endl;
+        std::cout << "1. Display Image" << std::endl;
+        std::cout << "2. Apply Grayscale Filter" << std::endl;
+        std::cout << "3. Apply Blur Filter" << std::endl;
+        std::cout << "4. Apply Sharpen Filter" << std::endl;
+        std::cout << "5. Adjust Brightness and Contrast" << std::endl;
+        std::cout << "6. Crop Image" << std::endl;
+        std::cout << "7. Resize Image" << std::endl;
+        std::cout << "8. Save Image" << std::endl;
+        std::cout << "9. Quit" << std::endl;
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                displayImage(image);
+                break;
+            case 2:
+                applyGrayScale(image);
+                break;
+            case 3:
+                applyBlur(image);
+                break;
+            case 4:
+                applySharpen(image);
+                break;
+            case 5:
+                double alpha;
+                int beta;
+                std::cout << "Enter the alpha value (contrast): ";
+                std::cin >> alpha;
+                std::cout << "Enter the beta value (brightness): ";
+                std::cin >> beta;
+                adjustBrightnessContrast(image, alpha, beta);
+                break;
+            case 6:
+                int x, y, width, height;
+                std::cout << "Enter x, y, width, and height to crop: ";
+                std::cin >> x >> y >> width >> height;
+                cropImage(image, x, y, width, height);
+                break;
+            case 7:
+                int newWidth, newHeight;
+                std::cout << "Enter new width and height: ";
+                std::cin >> newWidth >> newHeight;
+                resizeImage(image, newWidth, newHeight);
+                break;
+            case 8:
+                std::string outputImagePath;
+                std::cout << "Enter the path to save the image: ";
+                std::cin >> outputImagePath;
+                cv::imwrite(outputImagePath, image);
+                std::cout << "Image saved successfully!" << std::endl;
+                break;
+            case 9:
+                std::cout << "Exiting program." << std::endl;
+                break;
+            default:
+                std::cout << "Invalid choice. Please enter a valid option." << std::endl;
+                break;
+        }
+    } while (choice != 9);
+
+    return 0;
+}
