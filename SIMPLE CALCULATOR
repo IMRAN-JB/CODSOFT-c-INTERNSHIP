@@ -1,0 +1,70 @@
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+
+// Enum for operations
+enum class Operation {
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION
+};
+
+// Function to parse operation from user input
+Operation parseOperation(char operationChar) {
+    switch (operationChar) {
+        case '+': return Operation::ADDITION;
+        case '-': return Operation::SUBTRACTION;
+        case '*': return Operation::MULTIPLICATION;
+        case '/': return Operation::DIVISION;
+        default: throw std::invalid_argument("Invalid operation!");
+    }
+}
+
+// Calculator class
+class Calculator {
+public:
+    double calculate(double num1, double num2, Operation operation) {
+        switch (operation) {
+            case Operation::ADDITION:
+                return num1 + num2;
+            case Operation::SUBTRACTION:
+                return num1 - num2;
+            case Operation::MULTIPLICATION:
+                return num1 * num2;
+            case Operation::DIVISION:
+                if (num2 == 0) {
+                    throw std::runtime_error("Division by zero!");
+                } else {
+                    return num1 / num2;
+                }
+            default:
+                throw std::invalid_argument("Invalid operation!");
+        }
+    }
+};
+
+int main() {
+    double num1, num2;
+    char operationChar;
+
+    std::cout << "Enter first number: ";
+    std::cin >> num1;
+
+    std::cout << "Enter second number: ";
+    std::cin >> num2;
+
+    std::cout << "Enter operation (+, -, *, /): ";
+    std::cin >> operationChar;
+
+    Calculator calculator;
+    try {
+        Operation operation = parseOperation(operationChar);
+        double result = calculator.calculate(num1, num2, operation);
+        std::cout << "Result: " << result << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return 0;
+}
